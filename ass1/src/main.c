@@ -2,12 +2,17 @@
 #include <stdlib.h>
 #include "graph.h"
 
-FILE *input_file, *output_file;
+#define DAMPING_FACTOR 0.85
+#define ITERATIONS 50
 
-Graph * parse_file(FILE *input);
-void printGraph(struct Graph* graph);
+long num_nodes = 0;
+
+vertex** parse_file(FILE *input);
+void printGraph(struct vertex** v);
 
 int main(int argc, char **argv) {
+
+    FILE *input_file, *output_file;
 
     if(argc != 3){
         fprintf(stderr, "Invalid number of arguments\n");
@@ -23,10 +28,9 @@ int main(int argc, char **argv) {
     }
 
     //parse file & construct graph
-    Graph * graph = parse_file(input_file);
+    vertex ** v = parse_file(input_file);
 
-    printGraph(graph);
-    printf("komplit\n");
+    printGraph(v);
 
     fclose(input_file);
     fclose(output_file);

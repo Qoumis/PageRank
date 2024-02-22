@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include "graph.h"
 
+extern long num_nodes;
 
-Graph * parse_file(FILE *input){
+vertex **parse_file(FILE *input){
     char line[128];
     long src, dest;
-    long num_nodes = 0;
 
     //first we need to count the number of nodes
     //We dont read just the last line of the file, because we are not sure if the nodes come in order
@@ -15,65 +15,73 @@ Graph * parse_file(FILE *input){
         if (line[0] == '#')
             continue;
 
-        if(fscanf(input, "%ld", &src) == 1){
+        if(fscanf(input, "%ld %ld", &src, &dest) == 2){
             if(src > num_nodes)
                 num_nodes = src;
+            if(dest > num_nodes)
+                num_nodes = dest;
         }
     }
     rewind(input); //reset the fp, to read the file from the beginning
 
     //Construct the graph, reading from the file
-    Graph* g = createGraph(num_nodes + 1);
+    vertex **verts = malloc((num_nodes + 1) * sizeof(vertex*)); 
     while (fgets(line, sizeof(line), input) != NULL) {
         if (line[0] == '#')
             continue;
 
         if(fscanf(input, "%ld %ld", &src, &dest) == 2){
-            addEdge(g, src, dest);
+            if(verts[src] == NULL)
+                verts[src] = create_vertex(src);
+            if(verts[dest] == NULL)
+                verts[dest] = create_vertex(dest);
+
+            add_edge_toList(verts[dest], src);  //add incoming edge to the destination vertex
+            verts[src]->num_outEdges++;         //increment the number of outgoing edges for the source vertex
         }
     }  
 
-    return g;
+    return verts;
 }
 
-node *newNode(long v){
-    node *new_node = (node *)malloc(sizeof(node));
-    new_node->vertex = v;
+//Initializes a new vertex of the graph
+vertex *create_vertex(long id){
+    vertex *new_vert = (vertex *)malloc(sizeof(vertex));
+    new_vert->id = id;
+    new_vert->pageRank = 1.0;
+    new_vert->num_outEdges = 0;
+    new_vert->incEdges = NULL;
+    
+    new_vert->num_incEdges = 0;
+
+    return new_vert;
+}
+
+//Initializes a new node for the adjList
+adjListNode *create_adj_node(long id){
+    adjListNode *new_node = (adjListNode *)malloc(sizeof(adjListNode));
+    new_node->id = id;
     new_node->next = NULL;
+
     return new_node;
 }
 
-Graph *createGraph(long numVertices){
-    Graph *graph = (Graph *)malloc(sizeof(Graph));
-    graph->numVertices = numVertices;
-
-    graph->adjLists = (node **)malloc(numVertices * sizeof(node *));
-
-    for(long i = 0; i < numVertices; i++){
-        graph->adjLists[i] = NULL;
-    }
-
-    return graph;
+//Adds a node with the given id to the adjList (list of incoming verticies) for the given vertex 
+void add_edge_toList(vertex *vert, long id){
+    adjListNode *new_node = create_adj_node(id);
+    new_node->next = vert->incEdges;
+    vert->incEdges = new_node;
+    vert->num_incEdges++;
 }
 
-void addEdge(Graph *g, long src, long dest){
-    node *new_node = newNode(dest);
-    new_node->next = g->adjLists[src];
-    g->adjLists[src] = new_node;
-}
+//Prints all the nodes of the graph along with their number of outgoing & incoming edges
+void printGraph(struct vertex** v) {
+    printf("num_nodes: %ld\n", num_nodes);
 
-// Delete later!!!
-void printGraph(struct Graph* graph) {
-  for (long v = 0; v < graph->numVertices; v++) {
-    struct node* temp = graph->adjLists[v];
-    if(temp)
-        printf("\n Vertex %ld: \n", v);
-    while (temp) {
-      printf("%ld -> ", temp->vertex);
-      temp = temp->next;
+    for(long i = 0; i < num_nodes + 1; i++){
+        if(v[i] != NULL)
+            printf("vertex: %ld, pageRank: %f, num_outEdges: %d num_incEdges: %d\n", v[i]->id, v[i]->pageRank, v[i]->num_outEdges, v[i]->num_incEdges);
     }
-    printf("\n");
-  }
 }
 
 
