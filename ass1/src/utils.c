@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include "graph.h"
 
+#define DAMPING_FACTOR 0.85
+
+
 extern long num_nodes;
 
 vertex **parse_file(FILE *input){
@@ -31,6 +34,7 @@ vertex **parse_file(FILE *input){
             continue;
 
         if(fscanf(input, "%ld %ld", &src, &dest) == 2){
+            //if the vertex does not already exist, create it (if it hasnt been seen in the file yet)
             if(verts[src] == NULL)
                 verts[src] = create_vertex(src);
             if(verts[dest] == NULL)
@@ -84,6 +88,21 @@ void printGraph(struct vertex** v) {
     }
 }
 
+//Calculates the pagerank for the vertex with the given id
+void calculate_pagerank(vertex** verts, long id){
+    double inc_sum = 0;
+
+    adjListNode *tmp = verts[id]->incEdges;
+
+    //Calcualtion Formula from Wikipedia : PR(Xi) = (1-d) + d * SUM_OF_INC_EDGES_ON_X( PR(Yi) / #OUT_EDGES_OF_Y )
+    while(tmp != NULL){
+        inc_sum += verts[tmp->id]->pageRank / verts[tmp->id]->num_outEdges;
+        tmp = tmp->next;
+    }
+
+    verts[id]->pageRank = (1 - DAMPING_FACTOR) + DAMPING_FACTOR * inc_sum;
+
+}
 
 int export_csv(FILE *output_file, vertex** verts){
     fprintf(output_file, "node,pagerank\n");

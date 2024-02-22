@@ -2,12 +2,7 @@
 #include <stdlib.h>
 #include "graph.h"
 
-#ifndef CONSTS_H
-
-#define DAMPING_FACTOR 0.85
 #define ITERATIONS 50
-
-#endif
 
 long num_nodes = 0;
 
