@@ -2,13 +2,19 @@
 #include <stdlib.h>
 #include "graph.h"
 
+#ifndef CONSTS_H
+
 #define DAMPING_FACTOR 0.85
 #define ITERATIONS 50
+
+#endif
 
 long num_nodes = 0;
 
 vertex** parse_file(FILE *input);
 void printGraph(struct vertex** v);
+int export_csv(FILE *output_file, vertex** verts);
+void calculate_pagerank(vertex** verts, long id);
 
 int main(int argc, char **argv) {
 
@@ -28,9 +34,15 @@ int main(int argc, char **argv) {
     }
 
     //parse file & construct graph
-    vertex ** v = parse_file(input_file);
+    vertex ** vertices = parse_file(input_file);
 
-    printGraph(v);
+    for(int i = 0; i < ITERATIONS; i++){
+        for(long i = 0; i < num_nodes + 1; i++){
+            if(vertices[i] != NULL)
+                calculate_pagerank(vertices, i);
+        }
+    }
+    export_csv(output_file, vertices);
 
     fclose(input_file);
     fclose(output_file);

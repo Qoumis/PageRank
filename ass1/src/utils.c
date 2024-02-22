@@ -80,16 +80,17 @@ void printGraph(struct vertex** v) {
 
     for(long i = 0; i < num_nodes + 1; i++){
         if(v[i] != NULL)
-            printf("vertex: %ld, pageRank: %f, num_outEdges: %d num_incEdges: %d\n", v[i]->id, v[i]->pageRank, v[i]->num_outEdges, v[i]->num_incEdges);
+            printf("vertex: %ld, num_outEdges: %d num_incEdges: %d\n", v[i]->id, v[i]->num_outEdges, v[i]->num_incEdges);
     }
 }
 
 
-int export_csv(FILE *output_file, int data){
+int export_csv(FILE *output_file, vertex** verts){
     fprintf(output_file, "node,pagerank\n");
 
-    for(int i = 0; i < data; i++){
-        fprintf(output_file, "test: %d,%f\n", i, 0.85);
+    for(int i = 0; i < num_nodes + 1; i++){
+        if(verts[i] != NULL)
+            fprintf(output_file, "%ld,%f\n", verts[i]->id, verts[i]->pageRank);
     }
     
     return 0;
