@@ -2,7 +2,7 @@
 
 #Compiler flags
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -pthread
 
 #File Names
 MAIN   = main
@@ -13,7 +13,7 @@ OBJ_DIR = obj
 
 #Final Target
 pagerank: $(MAIN).o $(UTILS).o
-	$(CC) $(CFLAGS) -o pagerank $(OBJ_DIR)/*.o
+	$(CC) $(CFLAGS) -o $@ $(OBJ_DIR)/*.o
 
 #Object Targets
 $(MAIN).o: $(SRC_DIR)/$(MAIN).c | $(OBJ_DIR)
@@ -27,4 +27,4 @@ $(OBJ_DIR):
 	mkdir -p $@
 
 clean: 
-	rm -rf $(OBJ_DIR) *.csv pagerank
+	rm -rf $(OBJ_DIR) *.csv graph_info.txt pagerank

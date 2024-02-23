@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "graph.h"
+#include <sys/time.h>
 
 #define DAMPING_FACTOR 0.85
 
@@ -80,12 +81,16 @@ void add_edge_toList(vertex *vert, long id){
 
 //Prints all the nodes of the graph along with their number of outgoing & incoming edges
 void printGraph(struct vertex** v) {
-    printf("num_nodes: %ld\n", num_nodes);
+    FILE *ginfo_file = fopen("graph_info.txt", "w");
+
+    fprintf(ginfo_file,"Number of vertices: %ld\n\n", num_nodes + 1);
 
     for(long i = 0; i < num_nodes + 1; i++){
         if(v[i] != NULL)
-            printf("vertex: %ld, num_outEdges: %d num_incEdges: %d\n", v[i]->id, v[i]->num_outEdges, v[i]->num_incEdges);
+            fprintf(ginfo_file, "vertex: %ld #Outgoing Edges: %d #Incoming Edges: %d\n", v[i]->id, v[i]->num_outEdges, v[i]->num_incEdges);
     }
+
+    fclose(ginfo_file);
 }
 
 //Calculates the pagerank for the vertex with the given id
@@ -104,13 +109,23 @@ void calculate_pagerank(vertex** verts, long id){
 
 }
 
-int export_csv(FILE *output_file, vertex** verts){
+void export_csv(FILE *output_file, vertex** verts){
     fprintf(output_file, "node,pagerank\n");
 
     for(int i = 0; i < num_nodes + 1; i++){
         if(verts[i] != NULL)
             fprintf(output_file, "%ld,%f\n", verts[i]->id, verts[i]->pageRank);
     }
-    
-    return 0;
+}
+
+void export_time(struct timeval start, struct timeval end){
+    FILE *time_file = fopen("exec_times.txt", "a+");
+
+    long seconds = end.tv_sec - start.tv_sec;
+    long microseconds = end.tv_usec - start.tv_usec;
+    double elapsed = seconds + microseconds * 1e-6;
+    printf("Time taken: %f seconds\n", elapsed);
+
+    fprintf(time_file, "%f\n", elapsed);
+    fclose(time_file);
 }
