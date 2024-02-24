@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include "graph.h"
 #include <sys/time.h>
-
-#define DAMPING_FACTOR 0.85
-
+#include <pthread.h>
 
 extern long num_nodes;
 
@@ -91,22 +89,6 @@ void printGraph(struct vertex** v) {
     }
 
     fclose(ginfo_file);
-}
-
-//Calculates the pagerank for the vertex with the given id
-void calculate_pagerank(vertex** verts, long id){
-    double inc_sum = 0;
-
-    adjListNode *tmp = verts[id]->incEdges;
-
-    //Calcualtion Formula from Wikipedia : PR(Xi) = (1-d) + d * SUM_OF_INC_EDGES_ON_X( PR(Yi) / #OUT_EDGES_OF_Y )
-    while(tmp != NULL){
-        inc_sum += verts[tmp->id]->pageRank / verts[tmp->id]->num_outEdges;
-        tmp = tmp->next;
-    }
-
-    verts[id]->pageRank = (1 - DAMPING_FACTOR) + DAMPING_FACTOR * inc_sum;
-
 }
 
 void export_csv(FILE *output_file, vertex** verts){

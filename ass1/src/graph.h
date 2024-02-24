@@ -12,6 +12,7 @@ typedef struct vertex {
     int num_outEdges;        //number of outgoing edges (links according to wikipedia example)
     adjListNode* incEdges;  //this will hold the list of incoming edges
     int num_incEdges;      //Probably not needed, added mostly for debugging
+    double tmp_rank;       //used to store the new pagerank value before it is updated (its not needed since we have 50 ieterations?)
 }vertex;
 
 
